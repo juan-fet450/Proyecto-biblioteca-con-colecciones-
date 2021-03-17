@@ -13,35 +13,57 @@ import java.util.*;
  *
  * @author Juan Osorio
  * @since 16/08/2019
- * @serial 1.0
+ * @version 1.1
  */
 public class Parqueadero {
     
-    private int tarifa;
+    private int carros = 0; 
+    private int motos = 0; 
+    private int camiones = 0;
+    private double tarifa = 0;
+    private int ContDescuentos = 0;
     private double n = 0;
     private HashMap<Date, Automotor> myFechasIn = new HashMap();
     private HashMap<Conductor, Automotor> myUserList = new HashMap();
     private ArrayList<Automotor> myParking = new ArrayList();
+    private ArrayList<Double> myPrices = new ArrayList();
 
-    public int obtenerTarifa() {
+    /**
+     * 
+     * @return the price by hours of the specified parking 
+     */
+    public double obtenerTarifa() {
         
         return tarifa;
     
     }
 
-    public void actualizarTarifa(int nuevaTarifa) {
+    /**
+     * 
+     * @param nuevaTarifa refresh the price of the specified parking 
+     */
+    public void actualizarTarifa(double nuevaTarifa) {
     
         this.tarifa = nuevaTarifa;
     
     }
 
-    public void ingresarTarifa(int tarifa) {
+    /**
+     * 
+     * @param tarifa the initial price of the specified parking
+     */
+    public void ingresarTarifa(double tarifa) {
         
         this.tarifa = tarifa;
     
     }
 
-    
+    /**
+     * 
+     * @param conductor driver info
+     * @param automotor car info
+     * @return this funtion put the car in a "place over the parking". But not really, just increase a double variable till it gets 150 as value 
+     */
     public void paquearAutomotor(Conductor conductor, Automotor automotor) {
         
         if (n == 149.5) {
@@ -57,6 +79,8 @@ public class Parqueadero {
                 this.myParking.add(automotor);
                 
                 this.n+=0.5;
+                
+                this.motos++;
                 
                 System.out.println("moto parqueada!");
                 
@@ -90,6 +114,8 @@ public class Parqueadero {
                     
                     this.n++;
                     
+                    this.carros++;
+                    
                 } else {
                     
                     Date fechaIngreso = new Date();
@@ -101,6 +127,8 @@ public class Parqueadero {
                     this.myParking.add(automotor);
                     
                     this.n+=0.5;
+                    
+                    this.motos++;
                     
                     System.out.println("moto parqueada!");
                     
@@ -123,6 +151,8 @@ public class Parqueadero {
                 this.myParking.add(automotor);
                 
                 this.n += 2;
+                
+                this.camiones++;
                
                 System.out.println("Camion parqueado!");
 
@@ -134,6 +164,8 @@ public class Parqueadero {
                 
                 this.n += 0.5;
                 
+                this.motos++;
+                
                 System.out.println("moto parqeada!");
                 
             }
@@ -143,6 +175,8 @@ public class Parqueadero {
                 this.myParking.add(automotor);
                 
                 this.n++;
+                
+                this.carros++;
                 
                 System.out.println("carro parqueado!");
                 
@@ -155,11 +189,16 @@ public class Parqueadero {
                 System.out.println("parqueadero lleno!");
                 
             }
+            
         }
 
     }
 
-    
+    /**
+     * 
+     * @param placaSalida id of the leaving car
+     * @return the cost of using parking from the leaving car
+     */
     public double tiempoFinal(String placaSalida) {
         
         double descuento = 0;
@@ -173,12 +212,34 @@ public class Parqueadero {
             
             if (salida.getValue().getPlaca().equals(placaSalida)) {
                 
-                if (((fechaSalida.getHours()) - (salida.getKey().getHours())) < 12) {
-                    
-                    saldoApagar = this.tarifa * ((fechaSalida.getHours()) - (salida.getKey().getHours()));
+                if (salida.getValue().getTipo().equalsIgnoreCase("carro")) {
                     
                     this.n--;
                     
+                    this.carros--;
+                    
+                } else {
+                    
+                    if (salida.getValue().getTipo().equalsIgnoreCase("moto")) {
+                        
+                        this.n-=0.5;
+                        
+                        this.motos--;
+                        
+                    } else {
+                        
+                        this.n-=2;
+                        
+                        this.camiones--;
+                        
+                    }
+                    
+                }
+                
+                if (((fechaSalida.getHours()) - (salida.getKey().getHours())) < 12) {
+                    
+                    saldoApagar = this.tarifa * ((fechaSalida.getHours()) - (salida.getKey().getHours()));
+                                        
                 } else {
                     
                     if (((fechaSalida.getHours()) - (salida.getKey().getHours())) == 12) {
@@ -186,8 +247,8 @@ public class Parqueadero {
                         descuento = 0.15 * (this.tarifa * 12);
                         
                         saldoApagar = (this.tarifa * ((fechaSalida.getHours()) - (salida.getKey().getHours()))) - descuento; 
-                        
-                        this.n--;
+                          
+                        this.ContDescuentos++;
                         
                     } else {
                         
@@ -197,7 +258,7 @@ public class Parqueadero {
                             
                             saldoApagar = (this.tarifa * ((fechaSalida.getHours()) - (salida.getKey().getHours()))) - descuento;
                             
-                            this.n--;
+                            this.ContDescuentos++;
                             
                         }
                         
@@ -209,8 +270,39 @@ public class Parqueadero {
             
         }
         
-        return saldoApagar;
+        if (saldoApagar == 0.0) {
+            
+            this.myPrices.add(this.tarifa);
+            return this.tarifa;
+            
+        }else{
+            
+            this.myPrices.add(saldoApagar);
+            return saldoApagar;
+        }
        
+    }
+    
+    /**
+     * @return A final report about counts and avaliable gaps in the park, furthermore give you how many discounts has been realized during the day
+     */
+    public void reporteFinal(){
+        
+        double recaudo = 0;
+        
+        for (int i = 0; i < this.myPrices.size(); i++) {
+            
+            recaudo+=this.myPrices.get(i);
+            
+        }
+        
+        System.out.println("el recaudo total ha sido de: "+recaudo);
+        
+        System.out.println("en el parqueadero se encuentran: "+this.motos+" motos, "+this.carros+" carros,"+this.camiones+" camiones.");
+        
+        System.out.println("quedan "+(150-this.n)+" espacios en el parqueadero");
+        
+        System.out.println("se realizaron "+this.ContDescuentos+" descuentos");
     }
     
 }

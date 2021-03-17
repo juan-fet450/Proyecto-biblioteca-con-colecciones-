@@ -19,15 +19,13 @@ public class Automotor {
     private String marca;
     private String color;
     private String Modelo;
-    private String fechaIngreso;
 
-    public Automotor(String tipo, String placa, String marca, String color, String Modelo, String fechaIngreso) {
+    public Automotor(String tipo, String placa, String marca, String color, String Modelo) {
         this.tipo = tipo;
         this.placa = placa;
         this.marca = marca;
         this.color = color;
         this.Modelo = Modelo;
-        this.fechaIngreso = fechaIngreso;
     }
 
     public String getTipo() {
@@ -70,17 +68,9 @@ public class Automotor {
         this.Modelo = Modelo;
     }
 
-    public String getFechaIngreso() {
-        return fechaIngreso;
-    }
-
-    public void setFechaIngreso(String fechaIngreso) {
-        this.fechaIngreso = fechaIngreso;
-    }
-
     @Override
     public String toString() {
-        return "Automotor{" + "tipo=" + tipo + ", placa=" + placa + ", marca=" + marca + ", color=" + color + ", Modelo=" + Modelo + ", fechaIngreso=" + fechaIngreso + '}';
+        return "Automotor{" + "tipo=" + tipo + ", placa=" + placa + ", marca=" + marca + ", color=" + color + ", Modelo=" + Modelo + ", fechaIngreso=" + '}';
     }
 
     @Override
@@ -91,7 +81,6 @@ public class Automotor {
         hash = 53 * hash + Objects.hashCode(this.marca);
         hash = 53 * hash + Objects.hashCode(this.color);
         hash = 53 * hash + Objects.hashCode(this.Modelo);
-        hash = 53 * hash + Objects.hashCode(this.fechaIngreso);
         return hash;
     }
 
@@ -120,9 +109,6 @@ public class Automotor {
             return false;
         }
         if (!Objects.equals(this.Modelo, other.Modelo)) {
-            return false;
-        }
-        if (!Objects.equals(this.fechaIngreso, other.fechaIngreso)) {
             return false;
         }
         return true;
